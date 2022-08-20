@@ -1,6 +1,5 @@
 import React from 'react';
 import styled from 'styled-components';
-import LoginImg from '../img/login_img_01.png';
 import LoginLogo from '../img/loginLogo.png';
 import Button from './elements/Button';
 import Input from './elements/Input';
