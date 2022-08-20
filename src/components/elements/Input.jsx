@@ -1,6 +1,6 @@
 import styled, { css } from "styled-components";
 
-const Input = ({visible, disabled, defaultValue, type, inputType, value, id, title, name, placeholder, width, labelText, onChange, onKeyPress, onFocus, onBlur, minLength, maxLength }) => {
+const Input = ({ visible, disabled, defaultValue, type, inputType, value, id, title, name, placeholder, width, labelText, onChange, onKeyPress, onFocus, onBlur, minLength, maxLength }) => {
   return (
     <FormInputContainer>
       <label htmlFor={id}>{labelText}</label>
@@ -13,7 +13,7 @@ const Input = ({visible, disabled, defaultValue, type, inputType, value, id, tit
         name={name}
         value={value}
         defaultValue={defaultValue}
-        placeholder={visible?'검색':placeholder}
+        placeholder={visible ? '검색' : placeholder}
         width={width}
         onChange={onChange}
         onKeyPress={onKeyPress}
@@ -48,7 +48,8 @@ const FormInputContainer = styled.div`
 `;
 
 const FormInput = styled.input`
-  padding-left: 10px;
+padding:0;
+  /* padding-left: 10px; */
   outline: none;
   ${(props) => {
     return (
@@ -78,6 +79,22 @@ const FormInput = styled.input`
         outline:none;
         font-size:16px;
         border-radius:10px;
+      `
+    );
+  }}
+  ${(props) => {
+    return (
+      props.inputType === "sign" &&
+      css`
+        background-color:transparent;
+        padding:8px 0;
+        width:100%;
+        /* width:100%;
+        height:100%; */
+        border: 1px solid #dbdbdb;
+        outline:none;
+        font-size:15px;
+        text-indent: 10px;
       `
     );
   }}
