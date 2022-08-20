@@ -1,4 +1,5 @@
 import React from 'react';
+import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import styled from 'styled-components';
 import logoImg from '../img/loginLogo.png'
@@ -6,16 +7,32 @@ import { ImHome3 } from "react-icons/im";
 import { FaRegPlusSquare, FaSearch, FaPowerOff } from "react-icons/fa";
 import Button from './elements/Button';
 import Input from './elements/Input';
+import { __postSearch } from '../redux/modules/loginSlice';
+
 const Header = () => {
+  const dispatch = useDispatch();
   const navigate = useNavigate();
   const [visible, setVisible] = React.useState(false);
+  const [val, setVal] = React.useState('');
   const onfocusHandler = () => {
     setVisible(!visible);
   }
   const onBlurHandler = () => {
     setVisible(!visible);
+    setVal('');
   }
-
+  const onChangeHandler = (e) => {
+    setVal(e.target.value);
+  }
+  const onKeyPressHandler = (e) => {
+    if(e.key==='Enter'){
+      onSubmitEvent();
+    }
+  }
+  const onSubmitEvent = () => {
+    console.log("onSubmitEvent");
+    dispatch(__postSearch(val));
+  }
   return (
     <>
       <HeaderWrap>
@@ -26,7 +43,7 @@ const Header = () => {
               <FaSearch />
               <span>검색</span>
             </SearchItems> : null}
-            <Input type={"text"} inputType={'search'} onFocus={() => { onfocusHandler() }} onBlur={() => { onBlurHandler() }} visible={visible} />
+            <Input type={"text"} inputType={'search'} onFocus={() => { onfocusHandler() }} onBlur={() => { onBlurHandler() }} onChange={onChangeHandler} onKeyPress={onKeyPressHandler} visible={visible} value={val} />
           </InputBox>
           <BtnBox>
             <div><Button btntype={'headerBtn'} onClick={() => { navigate('/main'); }}><ImHome3 /></Button></div>
