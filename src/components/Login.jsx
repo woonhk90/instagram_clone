@@ -30,7 +30,7 @@ const Login = () => {
       [name]: value
     })
     if (name === 'password') {
-      if (value.length > 4) {
+      if (value.length > 5) {
         setPwDisabled(false);
       }
     }

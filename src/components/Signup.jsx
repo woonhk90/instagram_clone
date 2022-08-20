@@ -5,21 +5,28 @@ import styled from 'styled-components';
 import Button from './elements/Button';
 import Input from './elements/Input';
 import axios from "axios";
+import logoImg from '../img/loginLogo.png';
 
 import { ImCircleDown } from "react-icons/im";
+import { FaRegCheckCircle } from "react-icons/fa"; // 가능
+import { FaRegTimesCircle } from "react-icons/fa"; // 불가
+
+
 
 const Signup = () => {
+  const [pwDisabled, setPwDisabled] = React.useState(true);
+  const [overlap, setOverlap] = React.useState(true);
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [userInfo, setUserInfo] = useState({
     userId: '',
     userNic: '',
+    username: '',
     password: '',
-    passwordConfirm: '',
     idOverlap: false,
   })
 
-  const {userId,userNic,password,passwordConfirm,idOverlap}=userInfo
+  const { userId, userNic, username, password, idOverlap } = userInfo
 
   // const  {comments}  = useSelector((state) => state.todos);
   // const stateInfo = useSelector((state) => state.todo);
@@ -29,128 +36,135 @@ const Signup = () => {
 
   const onChangeEventHandler = (e) => {
     const { name, value } = e.target;
-    console.log(name,value);
+    console.log(name, value);
     setUserInfo({
       ...userInfo,
       [name]: value
     })
 
+    /* 이름이 usreId이면 이메일 유효성검사해야됨 */
     if (name === "userId") {
-      setUserInfo({...userInfo,[name]: value, idOverlap:false});
+      setUserInfo({ ...userInfo, [name]: value, idOverlap: false });
+      setOverlap(true);
     }
 
-    /* 비밀번호 일치 하는지 안하는지 */
-    if (name === 'passwordConfirm'||name === 'password') {
-      if (userInfo.password === value||userInfo.passwordConfirm === value) {
-        setPwChk("비밀번호가 일치합니다.");
+    // pw5개 이상 가입버튼 활성화
+    if (name === 'password') {
+      if (value.length > 5) {
+        setPwDisabled(false);
       } else {
-        setPwChk("비밀번호가 일치하지 않습니다");
+        setPwDisabled(true);
       }
     }
+
   }
 
-  const onSubmitEventHandler = async() => {
+  const onSubmitEventHandler = async () => {
     if (userInfo.userId === "") {
       window.alert("아이디를 입력해주세요..");
       return false;
     }
-    if (!userInfo.idOverlap) {
-      window.alert("아이디 중복검사를 해주세요.");
+    //이메일 유효성검사
+    const regExp = /^[0-9a-zA-Z]([-_.]?[0-9a-zA-Z])*@[0-9a-zA-Z]([-_.]?[0-9a-zA-Z])*.[a-zA-Z]{2,3}$/i;
+    if (!regExp.test(userInfo.userId)) {
+      alert("올바른 이메일 주소를 입력해주세요.");
       return false;
     }
+
+
+    if (userInfo.username === "") {
+      window.alert("성명을 입력해주세요.");
+      return false;
+    }
+
+
+
     if (userInfo.userNic === "") {
-      window.alert("닉네임을 입력해주세요.");
-      return false;
-    }
-    let idReg = /^[A-za-z0-9]{5,15}/g;
-    if (!idReg.test(userInfo.userId)) {
-      alert("아이디를 영문 대문자 또는 소문자 또는 숫자로 시작하는 아이디, 길이는 5~15자");
+      window.alert("사용자 이름을 입력해주세요.");
       return false;
     }
 
-    let nicReg = /^[A-za-z0-9]{5,15}/g;
-    if (!nicReg.test(userInfo.userNic)) {
-      alert("닉네임을 영문 대문자 또는 소문자 또는 숫자로 시작하는 아이디, 길이는 5~15자");
-      return false;
-    }
 
-    let pwReg = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$/;
+
+    let pwReg = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{6,}$/;
     if (!pwReg.test(userInfo.password)) {
-      alert("비밀번호를 최소 8 자, 하나 이상의 문자, 하나의 숫자 및 하나의 특수 문자");
+      alert("최소 6 자, 하나 이상의 영문자, 숫자");
       return false;
     }
 
 
 
-    if (userInfo.password === '' || userInfo.passwordConfirm === '') {
-      window.alert("비밀번호를 확인해주세요.");
+
+
+
+
+    try {
+      const data = await axios.post(`${process.env.REACT_APP_IP_ADDRESS}/member/signup`, userInfo);
+      console.log("회원가입리턴데이터=>", data);
+      if (data.data) {
+        navigate("/");
+      }
+    } catch (error) {
     }
 
 
-
-
-
-
-
-
-
-      try {
-        const data = await axios.post(`${process.env.REACT_APP_IP_ADDRESS}/member/signup`, userInfo);
-        console.log("회원가입리턴데이터=>", data);
-        if(data.data){
-          navigate("/");
-        }
-        // return thunkAPI.fulfillWithValue(data.data);
-      } catch (error) {
-        // return thunkAPI.rejectWithValue(error);
-      }
-
-
-
-
-    // dispatch(__postUserInfo(userInfo));
   }
 
+  // 이메일 포커스아웃되면 자동 중복체크
+  const onBlurHandler = () => {
+    if (userId !== '') {
+      onClickOverlap('idChk')
+    }
+  }
   const onClickOverlap = async (flag) => {
     try {
-        console.log("중복확인"+flag);
+      console.log("중복확인" + flag, userInfo.userId);
       const data = await axios.post(`${process.env.REACT_APP_IP_ADDRESS}/member/checkup`, { flag, val: userInfo.userId });
       console.log('DATA:', data);
       data ? window.alert("사용가능한 아이디 입니다.") : window.alert("사용불가능한 아이디 입니다.")
-      userInfo.idOverlap=data;
-    } catch (error){
-      alert('중복된 아이디 입니다.');      
+      userInfo.idOverlap = data;
+      setOverlap(false);
+    } catch (error) {
+      alert('중복된 아이디 입니다.');
+      setOverlap(true);
     }
   }
-  
+
   return (
     <>
-        <SigninWrap>
-          <SigninTitle>회원가입</SigninTitle>
-          <SigninForm>
-            <div>
-              <InputLabel htmlFor="userId">아이디: </InputLabel>
-              <Input type={"text"} width={'550px'} name={"userId"} id={"userId"} value={userId} onChange={onChangeEventHandler} placeholder={'영문 대문자 또는 소문자 또는 숫자로 시작하는 아이디, 길이는 5~15자'} /><OverLapSpan onClick={() => { onClickOverlap('idChk') }}>중복확인</OverLapSpan>
-            </div>
-            <div>
-              <InputLabel htmlFor="userNic">닉네임: </InputLabel>
-              <Input type={"text"} width={'550px'} name={"userNic"} id={"userNic"} onChange={onChangeEventHandler} placeholder={'영문 대문자 또는 소문자 또는 숫자로 시작하는 아이디, 길이는 5~15자'} />
-            </div>
-            <div>
-              <InputLabel htmlFor="password">비밀번호 입력: </InputLabel>
-              <Input type={"password"} width={'550px'} name={"password"} id={"password"} onChange={onChangeEventHandler} placeholder={'최소 8 자, 하나 이상의 문자, 하나의 숫자 및 하나의 특수 문자'} />
-            </div>
-            <div>
-              <InputLabel htmlFor="passwordConfirm">비밀번호 확인: </InputLabel>
-              <Input type={"password"} width={'550px'} name={"passwordConfirm"} id={"passwordConfirm"} onChange={onChangeEventHandler} />
-              <PwDoubleChk>{pwChk}</PwDoubleChk>
-            </div>
-            <ButtonBox>
-              <button btntype="signSubmit" onClick={() => { onSubmitEventHandler() }}>회원가입</button>
-              <button btntype="back" onClick={() => { navigate('/login'); }}>뒤로가기</button>
-            </ButtonBox>
-          </SigninForm>
-        </SigninWrap>
+      <SigninWrap>
+        <SignContainer>
+          <SignMain>
+            <SigninTitle><img src={logoImg} alt='logo' /></SigninTitle>
+            <SigninForm>
+              <FormTit>친구들의 사진과 동영상을 보려면 가입하세요.</FormTit>
+              <FormItems>
+                <Input inputType={'sign'} type={"text"} width={'550px'} name={"userId"} id={"userId"} value={userId} onChange={onChangeEventHandler} onBlur={onBlurHandler} placeholder={'이메일 주소'} />
+                <span>{!overlap?<FaRegCheckCircle/>:<FaRegTimesCircle/>}</span>
+              </FormItems>
+              <FormItems>
+                <Input inputType={'sign'} type={"text"} width={'550px'} name={"username"} id={"username"} onChange={onChangeEventHandler} placeholder={'성명'} />
+              </FormItems>
+              <FormItems>
+                <Input inputType={'sign'} type={"text"} width={'550px'} name={"userNic"} id={"userNic"} onChange={onChangeEventHandler} placeholder={'사용자 이름'} />
+              </FormItems>
+              <FormItems>
+                <Input inputType={'sign'} type={"password"} width={'550px'} name={"password"} id={"password"} onChange={onChangeEventHandler} placeholder={'비밀번호'} />
+                <PwDetail>* 최소 6 자, 하나 이상의 영문자, 숫자</PwDetail>
+              </FormItems>
+              <FormItems>
+                서비스를 이용하는 사람이 회원님의 연락처 정보를 Instagram에 업로드했을 수도 있습니다.
+              </FormItems>
+              <ButtonBox>
+                <Button btntype="login" disabled={pwDisabled} onClick={() => { onSubmitEventHandler() }}>가입</Button>
+              </ButtonBox>
+            </SigninForm>
+          </SignMain>
+          <BottomBox>
+            <LoginText>계정이 있으신가요? <LoginSpan onClick={() => { navigate('/'); }}>로그인</LoginSpan></LoginText>
+          </BottomBox>
+        </SignContainer>
+      </SigninWrap>
     </>
   );
 };
@@ -159,47 +173,92 @@ export default Signup;
 
 const SigninWrap = styled.div`
   width:100%;
-  background-color:rgba(0,0,0,0.8);
-  text-align:center;
+  height: 100vh;
+  background-color:#fafafa;
+  display:flex;
+  align-items:center;
+`;
+const SignContainer = styled.div`
+  width:1000px;
+  margin:0 auto;
+  
   display:flex;
   flex-direction:column;
+  align-items: center;
+`;
+const SignMain = styled.div`
+  width:100%;
+  display:flex;
+  flex-direction:column;
+  border:1px solid #dbdbdb;
+  background-color:#fff;
+  max-width:400px;
+  text-align:center;
+  padding:50px;
+  box-sizing: border-box;
+  margin-bottom:6px;
 `;
 
+
 const SigninTitle = styled.h1`
-  font:40px/80px 'Arial','sans-serif';
   letter-spacing: 10px;
+  margin:36px 0 12px 0;
 `;
 
 const SigninForm = styled.div`
-  font:20px/60px 'Arial','sans-serif';
-  letter-spacing: 5px;
-  padding:15px;
-  box-sizing:border-box;
+width:100%;
+display:flex;
+flex-direction:column;
+justify-content:center;
 `;
 
-const InputLabel = styled.label`
-  width:200px;
+const FormTit = styled.span`
+  font-size:17px;
+  line-height:20px;
+  margin:0 40px 10px;
+`;
+
+const FormItems = styled.div`
+width:100%;
+margin-bottom:5px;
+/* padding:0 10px;
+box-sizing: border-box; */
+`;
+
+const PwDetail = styled.span`
   display:block;
-  float:left;
-  margin-left:25px;
+  margin:0 0 15px;
+  font-size:12px;
+  color:red;
+  text-align:left;
+  font-weight: bold;
 `;
 
-const OverLapSpan = styled.span`
-  cursor: pointer;
-  display:inline-block;
-  border: 1px solid rgb(255,255,255);
-  margin-left:15px;
+const BottomBox = styled.div`
+  /* max-width:400px;
+  background-color:purple;
+  text-align:center; */
+
+  width:400px;
+  border:1px solid rgb(219,219,219);
+  font-size:14px;
+  text-align:center;
+  padding:10px 0;
+  box-sizing:border-box;
+  background-color:#fff;
 `;
-const PwDoubleChk = styled.div`
-  color:rgb(255,0,0);
-  font:20px/50px 'Arial','sans-serif';
-  width:80%;
-  height:15px;
-  margin:0 auto;
+const LoginText = styled.p`
+  margin:15px;
+  `;
+const LoginSpan = styled.span`
+  color:#0095f6;
+  font-weight: bold;
 `;
+
 
 const ButtonBox = styled.div`
-  position:relative;
+  /* position:relative;
   bottom:0%;
   margin-top:50px;
+  text-align:center; */
 `;
