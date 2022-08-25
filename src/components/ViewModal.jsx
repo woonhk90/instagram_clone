@@ -85,6 +85,7 @@ const ModalWrap = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
+  z-index:10px;
 `;
 const ModalBody = styled.div`
   position: absolute;
