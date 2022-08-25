@@ -51,7 +51,7 @@ export const __postLike = createAsyncThunk("todos/postLike", async (payload, thu
     try {
         console.log('__postLike=>', payload);
         const authorization_token = cookies.get("Authorization");
-        const data = await axios.patch(`${API_SEATCH}/article/auth/heart/${payload.cardNum}`, payload, {
+        const data = await axios.patch(`${API_SEATCH}/article/auth/heart/${payload.id}`, payload, {
             headers: {
                 Authorization: authorization_token
             },
@@ -100,6 +100,22 @@ export const __postCardUpdate = createAsyncThunk("todos/postCardUpdate", async (
         // return thunkAPI.rejectWithValue(error);
     }
 });
+export const __postSearch = createAsyncThunk("todos/postSearch", async (payload, thunkAPI) => {
+    try {
+      const authorization_token = cookies.get("Authorization");
+      console.log('__postSearch1=>', payload);
+      const data = await axios.get(`${API_SEATCH}/member/auth/search`, payload, {
+        headers: {
+          Authorization: authorization_token
+        },
+      });
+      console.log('__postSearch2=>', data);
+      return thunkAPI.fulfillWithValue(data.data);
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error);
+    }
+  });
+
 
 
 export const mainSlice = createSlice({
@@ -144,6 +160,17 @@ export const mainSlice = createSlice({
             state.cards = state.cards.filter((card) => card.id !== action.payload)
         },
         [__postCardDelete.rejected]: (state, action) => {
+            state.isLoading = false;
+            state.error = action.payload;
+        },
+        [__postSearch.pending]: (state) => {
+            state.isLoading = true;
+        },
+        [__postSearch.fulfilled]: (state, action) => {
+            state.isLoading = false;
+            state.cards = action.payload;
+        },
+        [__postSearch.rejected]: (state, action) => {
             state.isLoading = false;
             state.error = action.payload;
         },

@@ -62,6 +62,7 @@ const FormModal = (props) => {
 
   const [files, setFiles] = useState([]);
   const { getRootProps, getInputProps } = useDropzone({
+    maxFiles: 4,
     accept: {
       'image/*': []
     },
@@ -156,7 +157,8 @@ const FormModal = (props) => {
                 <DropZone {...getRootProps({ className: 'dropzone' })}>
                   <input {...getInputProps()} />
                   <ImgIcon><FaRegImages /></ImgIcon>
-                  <p>사진과 동영상을 여기에 끌어다 놓으세요.</p>
+                  <ImgFont>사진과 동영상을 여기에 끌어다 놓으세요.</ImgFont>
+                  <ImgFont>최대 4개</ImgFont>
                 </DropZone>
                 <aside style={thumbsContainer}>
                   {thumbs}
@@ -253,7 +255,8 @@ const RMiddle = styled.div``;
 
 
 const DropLine = styled.section`
-  height:100%;
+  height:80%;
+  border-bottom:1px solid #efefef;
 `;
 
 const DropZone = styled.div`
@@ -263,11 +266,17 @@ const DropZone = styled.div`
   flex-direction:column;
   justify-content:center;
   align-items:center;
-  font-size:25px;
 `;
 
 const ImgIcon = styled.span`
   display:flex;
   align-items:center;
   font-size:100px;
+  margin-bottom:50px;
+`;
+
+
+const ImgFont = styled.p`
+  font:25px/50px 'Arial','sans-serif';
+  margin:0;
 `;

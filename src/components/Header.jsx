@@ -7,7 +7,7 @@ import { ImHome3 } from "react-icons/im";
 import { FaRegPlusSquare, FaSearch, FaPowerOff } from "react-icons/fa";
 import Button from './elements/Button';
 import Input from './elements/Input';
-import { __postSearch } from '../redux/modules/loginSlice';
+import { __postSearch } from '../redux/modules/mainSlice';
 import Modal from "./FormModal";
 import { getLogout } from "../actions/cookie";
 
@@ -15,7 +15,7 @@ import Cookies from "universal-cookie";
 const cookies = new Cookies();
 
 const Header = () => {
-  
+
 
 
   const dispatch = useDispatch();
@@ -39,9 +39,9 @@ const Header = () => {
   }
   const onSubmitEvent = () => {
     console.log("onSubmitEvent");
-    dispatch(__postSearch(val));
+    dispatch(__postSearch({ userNic: val }));
   }
-  if(!cookies.get("Authorization")){
+  if (!cookies.get("Authorization")) {
     console.log("Authorization->false");
     navigate('/');
   }
