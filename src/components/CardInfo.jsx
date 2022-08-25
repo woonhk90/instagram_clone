@@ -18,7 +18,7 @@ const CardInfo = ({ info }) => {
   const dispatch = useDispatch();
   const [heart, setHeart] = useState(info.userLike);
   const [value, setValue] = useState({
-    cardNum: info.id,
+    id: info.id,
     heart: heart
   });
   const onDoubleClickHandler = () => {
@@ -60,8 +60,8 @@ const CardInfo = ({ info }) => {
                 navigation
                 pagination={{ clickable: true }}
               >
-                {info.imgUrl.map((v) => (
-                  <SwiperSlide><CardItem_02_Img src={v} alt='img' /></SwiperSlide>
+                {info.imageList.map((v) => (
+                  <SwiperSlide><CardItem_02_Img key={v.id} src={v.imgUrl} alt='img' /></SwiperSlide>
                 ))}
               </Swiper>
 
