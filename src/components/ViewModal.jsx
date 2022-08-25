@@ -10,7 +10,10 @@ import SwiperCore, { Navigation, Pagination } from "swiper";
 import "swiper/swiper.scss";
 import "swiper/components/navigation/navigation.scss";
 import "swiper/components/pagination/pagination.scss";
+import icons from '../img/icons.png';
 SwiperCore.use([Navigation, Pagination])
+
+
 
 const ViewModal = (props) => {
   const dispatch = useDispatch();
@@ -49,7 +52,19 @@ const ViewModal = (props) => {
         <ModalBody onClick={(e) => { e.stopPropagation() }}>
           <BodyContent>
             <ContentLeft>
-              <ContentImg src={props.info.imgUrl} alt='img' />
+
+              <Swiper
+                className="banner"
+                spaceBetween={50}
+                slidesPerView={1}
+                navigation
+                pagination={{ clickable: true }}
+              >
+                {props.info.imageList.map((v) => (
+                  <SwiperSlide><ContentImg key={v.id} src={v.imgUrl} alt='img' /></SwiperSlide>
+                ))}
+              </Swiper>
+
             </ContentLeft>
             <ContentRight>
               <RTop>
@@ -58,9 +73,9 @@ const ViewModal = (props) => {
                     <FaUserCircle />
                     {props.info.userNic}
                   </TopMenu>
-                  {props.info.userFlag?<TopMenu marginLeft='auto' marginRight='0' onClick={() => onUpdateHandler(props.info.id)}>
+                  {props.info.userFlag ? <TopMenu marginLeft='auto' marginRight='0' onClick={() => onUpdateHandler(props.info.id)}>
                     <FaEllipsisH />
-                  </TopMenu>:null}
+                  </TopMenu> : null}
                 </TopContent>
               </RTop>
               {!updateFlag ? <RMiddle>{props.children}</RMiddle> : <div><Textarea defaultValue={textAreaVal} onChange={onChangeHandler}></Textarea><button onClick={() => onSubmitHandler(props.info.id)}>수정완료</button></div>}
@@ -112,7 +127,48 @@ height:100%;
 const ContentLeft = styled.div`
 width:60%;
 height:100%;
+
+// 스와이퍼
+.swiper-container {
+    width: 100%;
+    height: 100%;
+  }
+
+  .swiper-button-prev,
+  .swiper-button-next {
+    margin-top: 0;
+    width: 30px;
+    height: 30px;
+    transform: translateY(-50%);
+    background-image: url(${icons});
+    background-repeat: no-repeat;
+    background-size: 440px 411px;
+    ::after {
+      content: '';
+    }
+  }
+
+  .swiper-button-prev {
+    background-position: -129px -97px;
+  }
+  .swiper-button-next {
+    background-position: -160px -97px;
+  }
+
+  .swiper-slide{
+    height:100%;
+  }
 `;
+
+const ContentImg = styled.img`
+width:100%;
+height:100%;
+`;
+
+
+
+
+
 const ContentRight = styled.div`
 width:40%;
 display:flex;
@@ -141,7 +197,3 @@ white-space: pre-line;
 `;
 
 
-const ContentImg = styled.img`
-width:100%;
-height:100%;
-`;
