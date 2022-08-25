@@ -35,7 +35,9 @@ export const __postLogin = createAsyncThunk("todos/__postLogin", async (payload,
 
     return thunkAPI.fulfillWithValue(data.data);
   } catch (error) {
-    console.log("ERROR=>", error);
+    console.log("LoginERROR=>", error);
+    window.alert(error.response.data.errorMessage);
+    return ;
   }
 });
 
