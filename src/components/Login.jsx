@@ -20,8 +20,8 @@ export function setRefreshTokenToCookie(key, data) {
 const Login = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const {login} = useSelector((state) => state);
-  console.log("LOGIN=>",login);
+  const {isLogin} = useSelector((state) => state.login);
+  console.log("LOGIN=>",isLogin);
   const [pwDisabled, setPwDisabled] = React.useState(true);
   const [loginInfo, setLoginInfo] = React.useState({
     userId: '',
@@ -54,8 +54,8 @@ const Login = () => {
     await dispatch(__postLogin(loginInfo));
 
     await dispatch(getUser());
-    console.log('로그인하고 __postLogin실행후 유저정보 가져옴11111',login);
-    login && navigate('/main');
+    console.log('로그인하고 __postLogin실행후 유저정보 가져옴11111',isLogin);
+    isLogin && navigate('/main');
 
 
   }
