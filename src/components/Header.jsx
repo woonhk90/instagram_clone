@@ -39,7 +39,7 @@ const Header = () => {
   }
   const onSubmitEvent = () => {
     console.log("onSubmitEvent");
-    dispatch(__postSearch({ userNic: val }));
+    dispatch(__postSearch({ content: val }));
   }
   if (!cookies.get("Authorization")) {
     console.log("Authorization->false");

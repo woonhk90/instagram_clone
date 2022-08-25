@@ -104,7 +104,7 @@ export const __postSearch = createAsyncThunk("todos/postSearch", async (payload,
     try {
       const authorization_token = cookies.get("Authorization");
       console.log('__postSearch1=>', payload);
-      const data = await axios.get(`${API_SEATCH}/member/auth/search`, payload, {
+      const data = await axios.get(`${API_SEATCH}/article/auth/search?content=${payload.content}`,{
         headers: {
           Authorization: authorization_token
         },

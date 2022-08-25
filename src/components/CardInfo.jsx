@@ -47,9 +47,9 @@ const CardInfo = ({ info }) => {
                 </LeftIcon>
                 <LeftUser>{info.userNic}</LeftUser>
               </Item01Left>
-              <Item01Right onClick={() => window.confirm('삭제하시겠습니까?') ? onClickDeleteHandler(info.id) : null} >
+              {info.userFlag ? <Item01Right onClick={() => window.confirm('삭제하시겠습니까?') ? onClickDeleteHandler(info.id) : null} >
                 <FaMinusCircle />
-              </Item01Right>
+              </Item01Right> : null}
             </CardItem_01>
             <CardItem_02 onDoubleClick={onDoubleClickHandler}>
 

@@ -58,9 +58,9 @@ const ViewModal = (props) => {
                     <FaUserCircle />
                     {props.info.userNic}
                   </TopMenu>
-                  <TopMenu marginLeft='auto' marginRight='0' onClick={() => onUpdateHandler(props.info.id)}>
+                  {props.info.userFlag?<TopMenu marginLeft='auto' marginRight='0' onClick={() => onUpdateHandler(props.info.id)}>
                     <FaEllipsisH />
-                  </TopMenu>
+                  </TopMenu>:null}
                 </TopContent>
               </RTop>
               {!updateFlag ? <RMiddle>{props.children}</RMiddle> : <div><Textarea defaultValue={textAreaVal} onChange={onChangeHandler}></Textarea><button onClick={() => onSubmitHandler(props.info.id)}>수정완료</button></div>}
