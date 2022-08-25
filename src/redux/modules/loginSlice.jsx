@@ -1,24 +1,53 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import axios from "axios";
 import Cookies from "universal-cookie";
+import { useNavigate } from "react-router-dom";
+
+export function setRefreshTokenToCookie(key, data) {
+  // let now = new Date();
+  // now.setMinutes(now.getMinutes() + 30);
+  // cookies.set("Authorization", data, { path: "/", expires: now });
+  cookies.set(key, data, { path: "/" });
+}
 
 const API_SEATCH = process.env.REACT_APP_IP_ADDRESS;
 const cookies = new Cookies();
 
 const initialState = {
-  login: [],
-  search: []
+  loginInfo: {},
+  search: [],
+  isLogin: false
 }
 
+export const __postLogin = createAsyncThunk("todos/__postLogin", async (payload, thunkAPI) => {
+  try {
+    console.log('__postLogin=>>');
+    const data = await axios.post(
+      `${process.env.REACT_APP_IP_ADDRESS}/member/login`,
+      payload,
+      {
+        headers: {},
+      }
+    );
+    console.log("로그인성공데이터1:", data.data);
+    const token = data.headers.authorization;
+    setRefreshTokenToCookie("Authorization", token);
+
+    return thunkAPI.fulfillWithValue(data.data);
+  } catch (error) {
+    console.log("ERROR=>", error);
+  }
+});
 export const __postSearch = createAsyncThunk("todos/postSearch", async (payload, thunkAPI) => {
   try {
     const authorization_token = cookies.get("Authorization");
-    console.log('__postSearch=>',payload);
-    const data = await axios.post(`${API_SEATCH}`, payload,{
-      header:{
+    console.log('__postSearch1=>', payload);
+    const data = await axios.get(`${API_SEATCH}/search/auth`, payload, {
+      headers: {
         Authorization: authorization_token
-      }
+      },
     });
+    console.log('__postSearch2=>', data);
     return thunkAPI.fulfillWithValue(data.data);
   } catch (error) {
     return thunkAPI.rejectWithValue(error);
@@ -28,14 +57,34 @@ export const __postSearch = createAsyncThunk("todos/postSearch", async (payload,
 export const todosSlice = createSlice({
   name: "login",
   initialState,
-  reducers: {},
+  reducers: {
+    getUser: (state, action) => {
+      console.log("ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ1:", action.payload);
+      (action.payload = {
+        isLogin: cookies.get("Authorization") ? true : false,
+      })
+      console.log("ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ2:", action.payload);
+    }
+  },
   extraReducers: {
+    [__postLogin.pending]: (state) => {
+      state.isLoading = true; // 네트워크 요청이 시작되면 로딩상태를 true로 변경합니다.
+    },
+    [__postLogin.fulfilled]: (state, action) => {
+      state.isLoading = false; // 네트워크 요청이 끝났으니, false로 변경합니다.
+      state.loginInfo = action.payload;
+      state.isLogin = cookies.get('Authorization') ? true : false;
+      console.log('__postLogin 의 state.isLogin', state.isLogin);
+    },
+    [__postLogin.rejected]: (state, action) => {
+      state.isLoading = false; // 에러가 발생했지만, 네트워크 요청이 끝났으니, false로 변경합니다.
+      state.error = action.payload; // catch 된 error 객체를 state.error에 넣습니다.
+    },
     [__postSearch.pending]: (state) => {
       state.isLoading = true; // 네트워크 요청이 시작되면 로딩상태를 true로 변경합니다.
     },
     [__postSearch.fulfilled]: (state, action) => {
       state.isLoading = false; // 네트워크 요청이 끝났으니, false로 변경합니다.
-      state.todos.push(action.payload); // Store에 있는 todos에 서버에서 가져온 todos를 넣습니다.
     },
     [__postSearch.rejected]: (state, action) => {
       state.isLoading = false; // 에러가 발생했지만, 네트워크 요청이 끝났으니, false로 변경합니다.
@@ -44,5 +93,5 @@ export const todosSlice = createSlice({
   },
 });
 
-export const { } = todosSlice.actions;
+export const { getUser } = todosSlice.actions;
 export default todosSlice.reducer;

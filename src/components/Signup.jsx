@@ -8,31 +8,38 @@ import axios from "axios";
 import logoImg from '../img/loginLogo.png';
 
 import { ImCircleDown } from "react-icons/im";
-import { FaRegCheckCircle } from "react-icons/fa"; // 가능
-import { FaRegTimesCircle } from "react-icons/fa"; // 불가
+import { FaRegCheckCircle, FaEye } from "react-icons/fa"; // 가능, 보이기
+import { FaRegTimesCircle, FaEyeSlash } from "react-icons/fa"; // 불가, 가리기
 
 
 
 const Signup = () => {
+  const [overlapBtnShowHide, setOverlapBtnShowHide] = React.useState(false);
+  const [overlapFlag, setOverlapFlag] = React.useState(false);
   const [pwDisabled, setPwDisabled] = React.useState(true);
+  const [pwShowHideFlag, setPwShowHideFlag] = React.useState(false);
   const [overlap, setOverlap] = React.useState(true);
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [userInfo, setUserInfo] = useState({
     userId: '',
     userNic: '',
-    username: '',
+    userName: '',
     password: '',
     idOverlap: false,
   })
 
-  const { userId, userNic, username, password, idOverlap } = userInfo
+  const { userId, userNic, userName, password, idOverlap } = userInfo
 
   // const  {comments}  = useSelector((state) => state.todos);
   // const stateInfo = useSelector((state) => state.todo);
 
   const [pwChk, setPwChk] = useState('');
 
+
+  const onShowHideHandler = () => {
+    setPwShowHideFlag(!pwShowHideFlag);
+  }
 
   const onChangeEventHandler = (e) => {
     const { name, value } = e.target;
@@ -60,19 +67,15 @@ const Signup = () => {
   }
 
   const onSubmitEventHandler = async () => {
-    if (userInfo.userId === "") {
-      window.alert("아이디를 입력해주세요..");
-      return false;
-    }
-    //이메일 유효성검사
-    const regExp = /^[0-9a-zA-Z]([-_.]?[0-9a-zA-Z])*@[0-9a-zA-Z]([-_.]?[0-9a-zA-Z])*.[a-zA-Z]{2,3}$/i;
-    if (!regExp.test(userInfo.userId)) {
-      alert("올바른 이메일 주소를 입력해주세요.");
-      return false;
+    if (!pwDisabled) {
+      if (userInfo.userId === "") {
+        window.alert("아이디를 입력해주세요..");
+        return false;
+      }
     }
 
 
-    if (userInfo.username === "") {
+    if (userInfo.userName === "") {
       window.alert("성명을 입력해주세요.");
       return false;
     }
@@ -99,6 +102,7 @@ const Signup = () => {
 
 
     try {
+      console.log("userInfo=>", userInfo);
       const data = await axios.post(`${process.env.REACT_APP_IP_ADDRESS}/member/signup`, userInfo);
       console.log("회원가입리턴데이터=>", data);
       if (data.data) {
@@ -112,20 +116,31 @@ const Signup = () => {
 
   // 이메일 포커스아웃되면 자동 중복체크
   const onBlurHandler = () => {
+
     if (userId !== '') {
+      //이메일 유효성검사
+      const regExp = /^[0-9a-zA-Z]([-_.]?[0-9a-zA-Z])*@[0-9a-zA-Z]([-_.]?[0-9a-zA-Z])*.[a-zA-Z]{2,3}$/i;
+      if (!regExp.test(userInfo.userId)) {
+        alert("올바른 이메일 주소를 입력해주세요.");
+        return false;
+      }
+
       onClickOverlap('idChk')
     }
   }
   const onClickOverlap = async (flag) => {
+    setOverlapBtnShowHide(true);
     try {
       console.log("중복확인" + flag, userInfo.userId);
       const data = await axios.post(`${process.env.REACT_APP_IP_ADDRESS}/member/checkup`, { flag, val: userInfo.userId });
       console.log('DATA:', data);
-      data ? window.alert("사용가능한 아이디 입니다.") : window.alert("사용불가능한 아이디 입니다.")
+      // data ? window.alert("사용가능한 아이디 입니다.") : window.alert("사용불가능한 아이디 입니다.")
+      
       userInfo.idOverlap = data;
+      
       setOverlap(false);
     } catch (error) {
-      alert('중복된 아이디 입니다.');
+      // alert('중복된 아이디 입니다.');
       setOverlap(true);
     }
   }
@@ -138,18 +153,21 @@ const Signup = () => {
             <SigninTitle><img src={logoImg} alt='logo' /></SigninTitle>
             <SigninForm>
               <FormTit>친구들의 사진과 동영상을 보려면 가입하세요.</FormTit>
+              <FormItems_Id>
+                <Input inputType={'sign'} type={"text"} width={'550px'} name={"userId"} id={"userId"} value={userId} onChange={onChangeEventHandler} onBlur={onBlurHandler} placeholder={'이메일 주소'} maxLength={'25'} />
+                {overlapBtnShowHide?<IdOverlapFlag>{!overlap ? <FaRegCheckCircle /> : <FaRegTimesCircle />}</IdOverlapFlag>:null}
+              </FormItems_Id>
               <FormItems>
-                <Input inputType={'sign'} type={"text"} width={'550px'} name={"userId"} id={"userId"} value={userId} onChange={onChangeEventHandler} onBlur={onBlurHandler} placeholder={'이메일 주소'} />
-                <span>{!overlap?<FaRegCheckCircle/>:<FaRegTimesCircle/>}</span>
+                <Input inputType={'sign'} type={"text"} width={'550px'} name={"userName"} id={"userName"} onChange={onChangeEventHandler} placeholder={'성명'} maxLength={'20'} />
               </FormItems>
               <FormItems>
-                <Input inputType={'sign'} type={"text"} width={'550px'} name={"username"} id={"username"} onChange={onChangeEventHandler} placeholder={'성명'} />
+                <Input inputType={'sign'} type={"text"} width={'550px'} name={"userNic"} id={"userNic"} onChange={onChangeEventHandler} placeholder={'사용자 이름'} maxLength={'20'} />
               </FormItems>
               <FormItems>
-                <Input inputType={'sign'} type={"text"} width={'550px'} name={"userNic"} id={"userNic"} onChange={onChangeEventHandler} placeholder={'사용자 이름'} />
-              </FormItems>
-              <FormItems>
-                <Input inputType={'sign'} type={"password"} width={'550px'} name={"password"} id={"password"} onChange={onChangeEventHandler} placeholder={'비밀번호'} />
+                <PwBox>
+                  <Input inputType={'sign'} type={pwShowHideFlag?'text':"password"} width={'550px'} name={"password"} id={"password"} onChange={onChangeEventHandler} placeholder={'비밀번호'} maxLength={'25'} />
+                  <PwShowHideFlag onClick={onShowHideHandler}>{pwShowHideFlag ? <FaEyeSlash /> : <FaEye />}</PwShowHideFlag>
+                </PwBox>
                 <PwDetail>* 최소 6 자, 하나 이상의 영문자, 숫자</PwDetail>
               </FormItems>
               <FormItems>
@@ -224,7 +242,32 @@ margin-bottom:5px;
 /* padding:0 10px;
 box-sizing: border-box; */
 `;
+const FormItems_Id = styled.div`
+width:100%;
+margin-bottom:5px;
 
+display:flex;
+align-items:center;
+position:relative;
+`;
+const IdOverlapFlag = styled.span`
+display:block;
+position:absolute;
+right:0;
+`;
+
+
+const PwBox = styled.div`
+  display:flex;
+  align-items:center;
+
+  position:relative;
+`;
+const PwShowHideFlag = styled.span`
+  position:absolute;
+  right:0;
+  cursor:pointer;
+`;
 const PwDetail = styled.span`
   display:block;
   margin:0 0 15px;
