@@ -1,21 +1,27 @@
-import React from 'react';
+import React, { useEffect, useInsertionEffect } from 'react';
 import styled from 'styled-components';
 import LoginLogo from '../img/loginLogo.png';
 import Button from './elements/Button';
 import Input from './elements/Input';
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import { useDispatch, useSelector } from "react-redux";
+import { __postLogin,getUser } from '../redux/modules/loginSlice';
 import Cookies from "universal-cookie";
 const cookies = new Cookies();
 
-export function setRefreshTokenToCookie(data) {
-  let now = new Date();
-  now.setMinutes(now.getMinutes() + 30);
-  cookies.set("Authorization", data, { path: "/", expires: now });
+export function setRefreshTokenToCookie(key, data) {
+  // let now = new Date();
+  // now.setMinutes(now.getMinutes() + 30);
+  // cookies.set("Authorization", data, { path: "/", expires: now });
+  cookies.set(key, data, { path: "/" });
 }
 
 const Login = () => {
+  const dispatch = useDispatch();
   const navigate = useNavigate();
+  const {login} = useSelector((state) => state);
+  console.log("LOGIN=>",login);
   const [pwDisabled, setPwDisabled] = React.useState(true);
   const [loginInfo, setLoginInfo] = React.useState({
     userId: '',
@@ -38,27 +44,20 @@ const Login = () => {
 
 
   const handleOnKeyPress = (e) => {
-    console.log(e);
+    // console.log(e);
   }
 
 
+
+
   const onClickSubmit = async () => {
-    try {
-      const data = await axios.post(
-        `${process.env.REACT_APP_IP_ADDRESS}/member/login`,
-        loginInfo,
-        {
-          headers: {},
-        }
-      );
-      console.log("로그인성공데이터1:", data);
-      console.log("로그인성공데이터2:", data.status);
-      const token = data.headers.authorization;
-      setRefreshTokenToCookie(token);
-      data.status === 200 ? navigate("/main") : window.alert("로그인 실패하였습니다.");
-    } catch {
-      alert("사용자를 찾을 수 없습니다.");
-    }
+    await dispatch(__postLogin(loginInfo));
+
+    await dispatch(getUser());
+    console.log('로그인하고 __postLogin실행후 유저정보 가져옴11111',login);
+    login && navigate('/main');
+
+
   }
 
   return (
@@ -72,8 +71,8 @@ const Login = () => {
                   <img src={LoginLogo} alt='Logo' />
                 </Logo>
                 <LoginForm>
-                  <Input inputType={'login'} type="text" name={'userId'} onChange={onChangeHandler} value={userId} placeholder='전화번호, 사용자 이름 또는 이메일'/>
-                  <Input inputType={'login'} type="password" name={'password'} onChange={onChangeHandler} onKeyPress={handleOnKeyPress} value={password} placeholder='비밀번호'/>
+                  <Input inputType={'login'} maxLength='30' type="text" name={'userId'} onChange={onChangeHandler} value={userId} placeholder='전화번호, 사용자 이름 또는 이메일' />
+                  <Input inputType={'login'} maxLength='30' type="password" name={'password'} onChange={onChangeHandler} onKeyPress={handleOnKeyPress} value={password} placeholder='비밀번호' />
                   <Button btntype='login' disabled={pwDisabled} onClick={onClickSubmit}>로그인</Button>
                   <TextLineBox>
                     <TextLine></TextLine>
@@ -85,7 +84,7 @@ const Login = () => {
                 </LoginForm>
               </RightBox>
               <SignBox>
-                <SignText>계정이 없으신가요? <SignSpan onClick={()=>{navigate('/signup')}}>가입하기</SignSpan></SignText>
+                <SignText>계정이 없으신가요? <SignSpan onClick={() => { navigate('/signup') }}>가입하기</SignSpan></SignText>
               </SignBox>
             </LoginRight>
           </LoginMain>

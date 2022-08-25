@@ -79,6 +79,7 @@ padding:0;
         outline:none;
         font-size:16px;
         border-radius:10px;
+        text-indent:10px;
       `
     );
   }}
@@ -89,11 +90,12 @@ padding:0;
         background-color:transparent;
         padding:8px 0;
         width:100%;
+        height:25px;
         /* width:100%;
         height:100%; */
         border: 1px solid #dbdbdb;
         outline:none;
-        font-size:15px;
+        font-size:12px;
         text-indent: 10px;
       `
     );

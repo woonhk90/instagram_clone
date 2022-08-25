@@ -8,8 +8,16 @@ import { FaRegPlusSquare, FaSearch, FaPowerOff } from "react-icons/fa";
 import Button from './elements/Button';
 import Input from './elements/Input';
 import { __postSearch } from '../redux/modules/loginSlice';
+import Modal from "./FormModal";
+import { getLogout } from "../actions/cookie";
+
+import Cookies from "universal-cookie";
+const cookies = new Cookies();
 
 const Header = () => {
+  
+
+
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [visible, setVisible] = React.useState(false);
@@ -25,7 +33,7 @@ const Header = () => {
     setVal(e.target.value);
   }
   const onKeyPressHandler = (e) => {
-    if(e.key==='Enter'){
+    if (e.key === 'Enter') {
       onSubmitEvent();
     }
   }
@@ -33,6 +41,12 @@ const Header = () => {
     console.log("onSubmitEvent");
     dispatch(__postSearch(val));
   }
+  if(!cookies.get("Authorization")){
+    console.log("Authorization->false");
+    navigate('/');
+  }
+  //모달 띄우기
+  const [modal, setModal] = React.useState(false);
   return (
     <>
       <HeaderWrap>
@@ -47,8 +61,11 @@ const Header = () => {
           </InputBox>
           <BtnBox>
             <div><Button btntype={'headerBtn'} onClick={() => { navigate('/main'); }}><ImHome3 /></Button></div>
-            <div><Button btntype={'headerBtn'} onClick={() => { }}><FaRegPlusSquare /></Button></div>
-            <div><Button btntype={'headerBtn'} onClick={() => { navigate('/'); }}><FaPowerOff /></Button></div>
+            <div><Button btntype={'headerBtn'} onClick={() => { setModal(!modal) }}><FaRegPlusSquare /></Button></div>
+            <div><Button btntype={'headerBtn'} onClick={() => { getLogout(); navigate('/'); }}><FaPowerOff /></Button></div>
+            {
+              modal && (<Modal closeModal={() => setModal(!modal)}></Modal>)
+            }
           </BtnBox>
         </HeaderContainer>
       </HeaderWrap>
